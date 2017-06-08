@@ -441,7 +441,6 @@ class ModbusClientDeviceTCP(object):
         local_connect = False
 
         if self.socket is None:
-            local_connect = True
             self.connect(self.timeout)
 
         try:
@@ -457,9 +456,8 @@ class ModbusClientDeviceTCP(object):
                     read_offset += read_count
                 else:
                     break
-        finally:
-            if local_connect:
-                self.disconnect()
+        except Exception:
+            self.disconnect()
 
         return resp
 
