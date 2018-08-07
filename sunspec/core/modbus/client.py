@@ -455,7 +455,7 @@ class ModbusClientDeviceTCP(object):
                     read_offset += read_count
                 else:
                     break
-        except Exception e:
+        except Exception as e:
             self.disconnect()
             raise e
 
