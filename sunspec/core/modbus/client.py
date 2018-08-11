@@ -381,7 +381,7 @@ class ModbusClientDeviceTCP(object):
                 self.socket.close()
             self.socket = None
         except Exception:
-            pass
+            self.socket = None
 
     def _read(self, addr, count, op=FUNC_READ_HOLDING):
 
@@ -438,7 +438,6 @@ class ModbusClientDeviceTCP(object):
         resp = ''
         read_count = 0
         read_offset = 0
-        local_connect = False
 
         if self.socket is None:
             self.connect(self.timeout)
@@ -456,8 +455,9 @@ class ModbusClientDeviceTCP(object):
                     read_offset += read_count
                 else:
                     break
-        except Exception:
+        except Exception as e:
             self.disconnect()
+            raise e
 
         return resp
 
@@ -517,11 +517,9 @@ class ModbusClientDeviceTCP(object):
 
         write_count = 0
         write_offset = 0
-        local_connect = False
         count = len(data)/2
 
         if self.socket is None:
-            local_connect = True
             self.connect(self.timeout)
 
         try:
@@ -533,9 +531,9 @@ class ModbusClientDeviceTCP(object):
                 self._write(addr + write_offset, data[(write_offset * 2):((write_offset + write_count) * 2)])
                 count -= write_count
                 write_offset += write_count
-        finally:
-            if local_connect:
-                self.disconnect()
+        except Exception as e:
+            self.disconnect()
+            raise e
 
 class ModbusClientDeviceMapped(object):
 
